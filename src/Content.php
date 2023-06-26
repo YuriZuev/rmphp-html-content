@@ -2,6 +2,7 @@
 
 namespace Rmphp\Content;
 
+use Rmphp\Foundation\Exceptions\AppError;
 use Rmphp\Foundation\Exceptions\AppException;
 use Rmphp\Foundation\TemplateInterface;
 
@@ -140,9 +141,10 @@ class Content implements TemplateInterface {
 
 	/**
 	 * @return string
+	 * @throws AppException
 	 */
 	public function getResponse(): string {
-		if (empty($this->template) || !file_exists($this->template)) return '';
+		if (empty($this->template) || !file_exists($this->template)) throw new AppError("Invalid template file");
 		ob_start(); include $this->template; $out = ob_get_contents(); ob_end_clean();
 		return $out;
 	}
