@@ -10,12 +10,12 @@ Stable version
 composer require rmphp/content
 ```
 ```bash
-composer require rmphp/content:"^1.0"
+composer require rmphp/content:"^1.1"
 ```
 
 
 Dev version contains the latest changes
 
 ```bash
-composer require rmphp/content:"1.0.x-dev"
+composer require rmphp/content:"1.1.x-dev"
 ```
