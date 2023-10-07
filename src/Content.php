@@ -8,13 +8,6 @@ use Rmphp\Foundation\TemplateInterface;
 
 class Content implements TemplateInterface {
 
-	private array $content = [];
-	private ContentData $data;
-	private ContentData $dataGlobal;
-	private string $basePath = "";
-	private string $template;
-	private string $subtemplatePath;
-
 	/**
 	 * Content constructor.
 	 * @param string $template
@@ -29,12 +22,11 @@ class Content implements TemplateInterface {
 	 * @return TemplateInterface
 	 */
 	public function setTemplate(string $template, array $resource = []) : TemplateInterface {
-		if(empty($this->data)) $this->data = new ContentData();
 		foreach ($resource as $resKey => $resVal){
-			$this->data->{$resKey} = $resVal;
+			$this->{$resKey} = $resVal;
 		}
-		$this->basePath = dirname(__DIR__, 4);
-		$this->template = $this->basePath.'/'.$template;
+		ContentData::$basePath = dirname(__DIR__, 4);
+		ContentData::$template = ContentData::$basePath.'/'.$template;
 		return $this;
 	}
 
@@ -43,7 +35,7 @@ class Content implements TemplateInterface {
 	 * @return TemplateInterface
 	 */
 	public function setSubtemplePath(string $subtemplatePath) : TemplateInterface {
-		$this->subtemplatePath = $this->basePath.'/'.$subtemplatePath;
+		ContentData::$subtemplatePath = ContentData::$basePath.'/'.$subtemplatePath;
 		return $this;
 	}
 
@@ -51,9 +43,8 @@ class Content implements TemplateInterface {
 	 * @return string
 	 */
 	public function getSubtemplePath(): string {
-		return $this->subtemplatePath;
+		return ContentData::$subtemplatePath;
 	}
-
 
 	/**
 	 * @param string $point
@@ -62,8 +53,8 @@ class Content implements TemplateInterface {
 	 */
 	public function addValue(string $point, string $string) : void {
 		if (empty($point)) throw new AppException("Empty point");
-		if (empty($this->subtemplatePath))throw new AppException("SubtemplatePath is not defined");
-		$this->content[$point][] = $string;
+		if (empty(ContentData::$subtemplatePath))throw new AppException("SubtemplatePath is not defined");
+		ContentData::$content[$point][] = $string;
 	}
 
 	/**
@@ -72,7 +63,7 @@ class Content implements TemplateInterface {
 	 * @throws AppException
 	 */
 	public function setValue(string $point, string $string) : void {
-		unset($this->content[$point]);
+		unset(ContentData::$content[$point]);
 		$this->addValue($point, $string);
 	}
 
@@ -83,14 +74,13 @@ class Content implements TemplateInterface {
 	 * @throws AppException
 	 */
 	public function addSubtemple(string $point, string $subTempl, array $resource = []) : void {
-		if (empty($this->subtemplatePath))throw new AppException("SubtemplatePath is not defined");
+		if (empty(ContentData::$subtemplatePath))throw new AppException("SubtemplatePath is not defined");
 		if (empty($point)) throw new AppException("Empty point");
-		if (empty($subTempl) || !file_exists($this->subtemplatePath."/".$subTempl)) throw new AppException($this->subtemplatePath."/".$subTempl. " is not found");
-		if(empty($this->data)) $this->data = new ContentData();
+		if (empty($subTempl) || !file_exists(ContentData::$subtemplatePath."/".$subTempl)) throw new AppException(ContentData::$subtemplatePath."/".$subTempl. " is not found");
 		foreach ($resource as $resKey => $resVal){
-			$this->data->{$resKey} = $resVal;
+			$this->{$resKey} = $resVal;
 		}
-		ob_start(); include $this->subtemplatePath."/".$subTempl; $this->content[$point][] = ob_get_contents(); ob_end_clean();
+		ob_start(); include ContentData::$subtemplatePath."/".$subTempl; ContentData::$content[$point][] = ob_get_contents(); ob_end_clean();
 	}
 
 	/**
@@ -100,18 +90,8 @@ class Content implements TemplateInterface {
 	 * @throws AppException
 	 */
 	public function setSubtemple(string $point, string $subTempl, array $resource = []) : void {
-		unset($this->content[$point]);
+		unset(ContentData::$content[$point]);
 		$this->addSubtemple($point, $subTempl, $resource);
-	}
-
-	/**
-	 * @param array $globals
-	 */
-	public function setGlobals(array $globals = []) : void {
-		$this->dataGlobal = new ContentData();
-		foreach ($globals as $resKey => $resVal){
-			$this->dataGlobal->{$resKey} = $resVal;
-		}
 	}
 
 	/**
@@ -121,12 +101,11 @@ class Content implements TemplateInterface {
 	 * @throws AppException
 	 */
 	public function inc(string $incFile, array $resource = []) : string {
-		if(empty($this->data)) $this->data = new ContentData();
 		foreach ($resource as $resKey => $resVal){
-			$this->data->{$resKey} = $resVal;
+			$this->{$resKey} = $resVal;
 		}
-		if(empty($incFile) || !file_exists($this->subtemplatePath."/".$incFile)) throw new AppException("Empty inc file");
-		ob_start(); include $this->subtemplatePath."/".$incFile; $out = ob_get_contents(); ob_end_clean();
+		if(empty($incFile) || !file_exists(ContentData::$subtemplatePath."/".$incFile)) throw new AppException("Empty inc file");
+		ob_start(); include ContentData::$subtemplatePath."/".$incFile; $out = ob_get_contents(); ob_end_clean();
 		return $out;
 	}
 
@@ -135,8 +114,8 @@ class Content implements TemplateInterface {
 	 * @return string
 	 */
 	public function getPoint(string $point) : string {
-		if (empty($point) || empty($this->content[$point])) return "";
-		return implode("", $this->content[$point]);
+		if (empty($point) || empty(ContentData::$content[$point])) return "";
+		return implode("", ContentData::$content[$point]);
 	}
 
 	/**
@@ -144,8 +123,8 @@ class Content implements TemplateInterface {
 	 * @throws AppException
 	 */
 	public function getResponse(): string {
-		if (empty($this->template) || !file_exists($this->template)) throw new AppError("Invalid template file");
-		ob_start(); include $this->template; $out = ob_get_contents(); ob_end_clean();
+		if (empty(ContentData::$template) || !file_exists(ContentData::$template)) throw new AppError("Invalid template file");
+		ob_start(); include ContentData::$template; $out = ob_get_contents(); ob_end_clean();
 		return $out;
 	}
 }
