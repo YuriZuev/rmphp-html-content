@@ -4,6 +4,7 @@ namespace Rmphp\Content;
 
 use Rmphp\Foundation\Exceptions\AppError;
 use Rmphp\Foundation\Exceptions\AppException;
+use Rmphp\Foundation\TemplateInterface;
 
 class Content implements TemplateInterface {
 
