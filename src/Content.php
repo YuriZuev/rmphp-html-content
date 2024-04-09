@@ -21,13 +21,13 @@ class Content implements TemplateInterface {
 			$this->{$resKey} = $resVal;
 		}
 		ContentData::$basePath = dirname(__DIR__, 4);
-		ContentData::$template = ContentData::$basePath.'/'.$template;
+		ContentData::$template = ContentData::$basePath.$template;
 		return $this;
 	}
 
 	/** @inheritDoc */
 	public function setSubtemplatePath(string $subtemplatePath = "") : TemplateInterface {
-		ContentData::$subtemplatePath = ContentData::$basePath.'/'.$subtemplatePath;
+		ContentData::$subtemplatePath = ContentData::$basePath.$subtemplatePath;
 		return $this;
 	}
 
@@ -59,11 +59,11 @@ class Content implements TemplateInterface {
 	public function addSubtemplate(string $point, string $subtemplate, array $resource = []) : void {
 		if (empty(ContentData::$subtemplatePath))throw new AppError("SubtemplatePath is not defined");
 		if (empty($point)) throw new AppError("Empty point");
-		if (empty($subtemplate) || !file_exists(ContentData::$subtemplatePath."/".$subtemplate)) throw new AppError(ContentData::$subtemplatePath."/".$subtemplate. " is not found");
+		if (empty($subtemplate) || !file_exists(ContentData::$subtemplatePath.$subtemplate)) throw new AppError(ContentData::$subtemplatePath.$subtemplate. " is not found");
 		foreach ($resource as $resKey => $resVal){
 			$this->{$resKey} = $resVal;
 		}
-		ob_start(); include ContentData::$subtemplatePath."/".$subtemplate; ContentData::$content[$point][] = ob_get_contents(); ob_end_clean();
+		ob_start(); include ContentData::$subtemplatePath.$subtemplate; ContentData::$content[$point][] = ob_get_contents(); ob_end_clean();
 	}
 
 	/**
@@ -81,8 +81,8 @@ class Content implements TemplateInterface {
 		foreach ($resource as $resKey => $resVal){
 			$this->{$resKey} = $resVal;
 		}
-		if(empty($incFile) || !file_exists(ContentData::$subtemplatePath."/".$incFile)) throw new AppError("Empty inc file");
-		ob_start(); include ContentData::$subtemplatePath."/".$incFile; $out = ob_get_contents(); ob_end_clean();
+		if(empty($incFile) || !file_exists(ContentData::$subtemplatePath.$incFile)) throw new AppError("Empty inc file");
+		ob_start(); include ContentData::$subtemplatePath.$incFile; $out = ob_get_contents(); ob_end_clean();
 		return $out;
 	}
 
