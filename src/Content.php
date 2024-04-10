@@ -81,7 +81,7 @@ class Content implements TemplateInterface {
 		foreach ($resource as $resKey => $resVal){
 			$this->{$resKey} = $resVal;
 		}
-		if(empty($incFile) || !file_exists(ContentData::$subtemplatePath.$incFile)) throw new AppError("Empty inc file ".$incFile);
+		if(empty($incFile) || !file_exists(ContentData::$subtemplatePath.$incFile)) throw new AppError("Inc file ".$incFile." is not found");
 		ob_start(); include ContentData::$subtemplatePath.$incFile; $out = ob_get_contents(); ob_end_clean();
 		return $out;
 	}
