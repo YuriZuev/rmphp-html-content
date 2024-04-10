@@ -21,7 +21,7 @@ class Content implements TemplateInterface {
 			$this->{$resKey} = $resVal;
 		}
 		ContentData::$basePath = dirname(__DIR__, 4);
-		ContentData::$template = ContentData::$basePath.rtrim($template, '/');
+		ContentData::$template = ContentData::$basePath.$template;
 		return $this;
 	}
 
