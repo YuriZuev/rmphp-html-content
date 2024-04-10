@@ -21,13 +21,13 @@ class Content implements TemplateInterface {
 			$this->{$resKey} = $resVal;
 		}
 		ContentData::$basePath = dirname(__DIR__, 4);
-		ContentData::$template = ContentData::$basePath.$template;
+		ContentData::$template = ContentData::$basePath.rtrim($template, '/');
 		return $this;
 	}
 
 	/** @inheritDoc */
 	public function setSubtemplatePath(string $subtemplatePath = "") : TemplateInterface {
-		ContentData::$subtemplatePath = ContentData::$basePath.$subtemplatePath;
+		ContentData::$subtemplatePath = ContentData::$basePath.rtrim($subtemplatePath, '/');
 		return $this;
 	}
 
