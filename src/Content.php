@@ -59,7 +59,7 @@ class Content implements TemplateInterface {
 	public function addSubtemplate(string $point, string $subtemplate, array $resource = []) : void {
 		if (empty(ContentData::$subtemplatePath))throw new AppError("SubtemplatePath is not defined");
 		if (empty($point)) throw new AppError("Empty point");
-		if (empty($subtemplate) || !file_exists(ContentData::$subtemplatePath.$subtemplate)) throw new AppError(ContentData::$subtemplatePath.$subtemplate. " is not found");
+		if (empty($subtemplate) || !file_exists(ContentData::$subtemplatePath.$subtemplate)) throw new AppError("Subtemplate ".ContentData::$subtemplatePath.$subtemplate. " is not found");
 		foreach ($resource as $resKey => $resVal){
 			$this->{$resKey} = $resVal;
 		}
