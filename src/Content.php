@@ -36,12 +36,48 @@ class Content implements TemplateInterface {
 		return ContentData::$subtemplatePath;
 	}
 
+
+	/**
+	 * @param array $aliases
+	 * @return TemplateInterface
+	 */
+	public function setSubtemplatePathAlias(array $aliases = []) : TemplateInterface {
+		foreach($aliases as $alias => $subtemplatePath){
+			ContentData::$subtemplatePathAlias[$alias] = ContentData::$basePath.rtrim($subtemplatePath, '/');
+		}
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSubtemplatePathAlias() : array {
+		return ContentData::$subtemplatePathAlias;
+	}
+
+	/**
+	 * @param string $subtemplate
+	 * @return string
+	 */
+	public function getFullSubtemplatePath(string $subtemplate) : string {
+		if (preg_match("'^[%@#](\w+?)(/.+)'", $subtemplate, $match)){
+			if(empty(ContentData::$subtemplatePathAlias)) throw new AppError("SubtemplatePathAliases is not defined");
+			if(empty(ContentData::$subtemplatePathAlias[$match[1]])) throw new AppError("Aliase '$match[1]' is not defined");
+			if(!file_exists(ContentData::$subtemplatePathAlias[$match[1]].$match[2])) throw new AppError("Subtemplate ".ContentData::$subtemplatePathAlias[$match[1]].$match[2]. " is not found");
+			return ContentData::$subtemplatePathAlias[$match[1]].$match[2];
+		} else {
+			if (empty(ContentData::$subtemplatePath)) throw new AppError("SubtemplatePath is not defined");
+			if (!file_exists(ContentData::$subtemplatePath.$subtemplate)) throw new AppError("Subtemplate ".ContentData::$subtemplatePath.$subtemplate. " is not found");
+			return ContentData::$subtemplatePath.$subtemplate;
+		}
+	}
+
+
 	/**
 	 * @inheritDoc
 	 */
 	public function addValue(string $point, string $string) : void {
 		if (empty($point)) throw new AppError("Empty point");
-		if (empty(ContentData::$subtemplatePath))throw new AppError("SubtemplatePath is not defined");
 		ContentData::$content[$point][] = $string;
 	}
 
@@ -57,13 +93,13 @@ class Content implements TemplateInterface {
 	 * @inheritDoc
 	 */
 	public function addSubtemplate(string $point, string $subtemplate, array $resource = []) : void {
-		if (empty(ContentData::$subtemplatePath))throw new AppError("SubtemplatePath is not defined");
 		if (empty($point)) throw new AppError("Empty point");
-		if (empty($subtemplate) || !file_exists(ContentData::$subtemplatePath.$subtemplate)) throw new AppError("Subtemplate ".ContentData::$subtemplatePath.$subtemplate. " is not found");
+		if (empty($subtemplate)) throw new AppError("Subtemplate is empty");
+		$inc = $this->getFullSubtemplatePath($subtemplate);
 		foreach ($resource as $resKey => $resVal){
 			$this->{$resKey} = $resVal;
 		}
-		ob_start(); include ContentData::$subtemplatePath.$subtemplate; ContentData::$content[$point][] = ob_get_contents(); ob_end_clean();
+		ob_start(); include $inc; ContentData::$content[$point][] = ob_get_contents(); ob_end_clean();
 	}
 
 	/**
@@ -78,11 +114,11 @@ class Content implements TemplateInterface {
 	 * @inheritDoc
 	 */
 	public function inc(string $incFile, array $resource = []) : string {
+		$inc = $this->getFullSubtemplatePath($incFile);
 		foreach ($resource as $resKey => $resVal){
 			$this->{$resKey} = $resVal;
 		}
-		if(empty($incFile) || !file_exists(ContentData::$subtemplatePath.$incFile)) throw new AppError("Inc file ".$incFile." is not found");
-		ob_start(); include ContentData::$subtemplatePath.$incFile; $out = ob_get_contents(); ob_end_clean();
+		ob_start(); include $inc; $out = ob_get_contents(); ob_end_clean();
 		return $out;
 	}
 
