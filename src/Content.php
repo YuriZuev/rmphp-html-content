@@ -5,6 +5,7 @@ namespace Rmphp\Content;
 use Rmphp\Foundation\Exceptions\AppError;
 use Rmphp\Foundation\TemplateInterface;
 
+#[\AllowDynamicProperties]
 class Content implements TemplateInterface {
 
 	/**
